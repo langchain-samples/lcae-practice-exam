@@ -22,7 +22,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from langsmith import Client
 
-LANGSMITH_API_URL = "https://api.smith.langchain.com"
+DEFAULT_LANGSMITH_API_URL = "https://api.smith.langchain.com"
 TRACES_FILE = Path(__file__).resolve().parent / "traces.json"
 
 
@@ -140,6 +140,8 @@ def main() -> int:
     # metadata. Strip the ones that add noise without helping the practice-exam
     # questions (Cursor IDE integration, endpoint URLs) so the important keys
     # (version, user_id) are easy to find in the UI.
+    api_url = os.environ.get("LANGSMITH_ENDPOINT", DEFAULT_LANGSMITH_API_URL).rstrip("/")
+
     for noisy_var in ("LANGSMITH_CURSOR_ENDPOINT", "LANGSMITH_CURSOR_PROJECT", "LANGSMITH_ENDPOINT"):
         os.environ.pop(noisy_var, None)
 
@@ -147,7 +149,7 @@ def main() -> int:
     project = payload["project_name"]
     traces = payload["traces"]
 
-    client = Client(api_key=api_key, api_url=LANGSMITH_API_URL)
+    client = Client(api_key=api_key, api_url=api_url)
 
     # Ensure the project exists up front so we can use its session_id when
     # attaching feedback (create_feedback now requires it).
@@ -177,7 +179,7 @@ def main() -> int:
 
     client.flush()
 
-    ui_base = LANGSMITH_API_URL.replace("api.smith", "smith")
+    ui_base = api_url.replace("api.smith", "smith")
     print("Done.")
     print(f"  project: {project}")
     print(f"  URL:     {ui_base}/o/-/projects/p/{project}")

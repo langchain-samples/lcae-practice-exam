@@ -20,6 +20,9 @@ Engineer (LCAE) practice exam.
    # then edit .env and paste in your LANGSMITH_API_KEY
    ```
 
+   If your LangSmith workspace is outside the default US region, also set
+   `LANGSMITH_ENDPOINT` in `.env` to your regional API endpoint.
+
 3. Install dependencies and upload the traces:
 
    ```sh
